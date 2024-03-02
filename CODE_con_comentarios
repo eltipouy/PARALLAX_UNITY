@@ -1,0 +1,47 @@
+using UnityEngine;
+
+public class Parallax : MonoBehaviour
+{
+    [SerializeField] private float parallaxMultiplier; // Un factor para controlar la velocidad de desplazamiento del paralaje
+
+    private Transform cameraTransform; // Transform de la cámara principal
+    private Vector3 previousCameraPosition; // La posición anterior de la cámara
+    private float spriteWidth, startPosition; // Ancho del sprite y posición de inicio
+
+    void Start()
+    {
+        // Obteniendo la transformación de la cámara principal
+        cameraTransform = Camera.main.transform;
+        // Almacenando la posición actual de la cámara
+        previousCameraPosition = cameraTransform.position;
+        // Obteniendo el ancho del sprite
+        spriteWidth = GetComponent<SpriteRenderer>().bounds.size.x;
+        // Almacenando la posición inicial del objeto
+        startPosition = transform.position.x;
+    }
+
+    void LateUpdate()
+    {
+        // Calculando el cambio en la posición de la cámara en el eje x
+        float deltaX = (cameraTransform.position.x - previousCameraPosition.x) * 0.1f; // Se multiplica por 0.1 para suavizar el movimiento
+        // Calculando cuánto se debe mover el objeto en relación con el movimiento de la cámara
+        float moveAmount = cameraTransform.position.x * (1 - parallaxMultiplier); // A menor valor de parallaxMultiplier, más lento se mueve el objeto
+        // Moviendo el objeto
+        transform.Translate(new Vector3(deltaX, 0, 0));
+        // Actualizando la posición anterior de la cámara
+        previousCameraPosition = cameraTransform.position;
+
+        // Si el objeto ha pasado completamente a la izquierda, moverlo a la derecha
+        if (moveAmount > startPosition + spriteWidth)
+        {
+            transform.Translate(new Vector3(spriteWidth, 0, 0));
+            startPosition += spriteWidth;
+        }
+        // Si el objeto ha pasado completamente a la derecha, moverlo a la izquierda
+        else if (moveAmount < startPosition - spriteWidth)
+        {
+            transform.Translate(new Vector3(-spriteWidth, 0, 0));
+            startPosition -= spriteWidth;
+        }
+    }
+}
